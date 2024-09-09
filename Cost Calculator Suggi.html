@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Assistant</title>
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: rgb(1, 188, 209);
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 40px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            width: 200px;
+            margin-right: 20px;
+            text-align: right;
+            font-weight: bold;
+        }
+        .form-group input[type="number"],
+        .form-group input[type="text"],
+        .form-group input[type="tel"],
+        .form-group input[type="text"] {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .hidden {
+            display: none;
+        }
+        button {
+            background-color: rgb(54, 210, 227);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: rgb(35, 140, 152);
+        }
+        .extra-offer-section {
+            margin-top: 20px;
+        }
+        .top_margin {
+            margin-top: 20px;
+        }
+        .center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .print{
+            width: 300px;
+            margin: 0 10px;
+        }
+        @media (max-width: 600px) {
+            .form-group label {
+                font-size: 14px;
+            }
+            .form-group input[type="number"],
+            .form-group input[type="text"],
+            .form-group input[type="tel"] {
+                font-size: 14px;
+            }
+            button {
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+            .radio-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .radiobutton{
+                display: flex;
+            }
+            .radio-items {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Cost Calculator</h1>
+        <form id="costForm">
+            <div class="form-group">
+                <label for="appCost">Application Cost:</label>
+                <input type="number" id="appCost" name="appCost" required oninput="calculateFields()">
+            </div>
+            <div class="form-group">
+                <label for="gstRate">GST Rate (%):</label>
+                <input type="number" id="gstRate" name="gstRate" required oninput="calculateFields()">
+            </div>
+            <div class="form-group">
+                <label for="openingOffer">Opening Offer:</label>
+                <input type="number" id="openingOffer" name="openingOffer" required oninput="calculateFields()">
+            </div>
+            <div class="form-group">
+                <label for="gstAmount">GST Amount:</label>
+                <input type="text" id="gstAmount" readonly>
+            </div>
+            <div class="form-group">
+                <label for="withoutGst">Cost Without GST:</label>
+                <input type="text" id="withoutGst" readonly>
+            </div>
+            <div class="form-group">
+                <label for="total">Total Cost:</label>
+                <input type="text" id="total" readonly>
+            </div>
+            <div class="form-group extra-offer-section">
+                <label>Extra Offer:</label>
+                <div class="radiobutton">
+                    <div class="radio_items">
+                    <input type="radio" id="extraOfferFlat" name="extraOfferType" value="flat" onclick="toggleExtraOfferFields(true)">
+                    <label for="extraOfferFlat">Flat Amount</label>
+                    </div>
+                    <div class="radio_items">
+                    <input type="radio" id="extraOfferPercentage" name="extraOfferType" value="percentage" onclick="toggleExtraOfferFields(true)">
+                    <label for="extraOfferPercentage">Percentage</label>
+                    </div>
+                </div>
+            </div>
+            <div id="extraOfferFields" class="hidden">
+                <div class="form-group">
+                    <label for="extraOfferAmount">Extra Offer Amount:</label>
+                    <input type="number" id="extraOfferAmount" name="extraOfferAmount" oninput="calculateFields()">
+                </div>
+                <div class="form-group">
+                    <label for="calculatedExtraOffer">Calculated Extra Offer:</label>
+                    <input type="text" id="calculatedExtraOffer" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="totalDiscount">Total Discount:</label>
+                    <input type="text" id="totalDiscount" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="grandTotal">Final Grand Total:</label>
+                    <input type="text" id="grandTotal" readonly>
+                </div>
+            </div>
+            <button type="button" onclick="showPrintOptions()">Print</button>
+            <div id="printOptions" class="hidden top_margin">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number:</label>
+                    <input type="tel" id="phone">
+                </div>
+                <div class="form-group">
+                    <label for="location">Location:</label>
+                    <input type="text" id="location">
+                </div>
+                <div class="center">
+                <button class="print" type="button" onclick="printPDF()">Print PDF</button>
+                <button class="print" type="button" onclick="printExcel()">Print Excel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script>
+        function calculateFields() {
+            const appCost = parseFloat(document.getElementById('appCost').value) || 0;
+            const gstRate = parseFloat(document.getElementById('gstRate').value) || 0;
+            const openingOffer = parseFloat(document.getElementById('openingOffer').value) || 0;
+            const extraOfferAmount = parseFloat(document.getElementById('extraOfferAmount').value) || 0;
+            const extraOfferType = document.querySelector('input[name="extraOfferType"]:checked')?.value || '';
+
+            const gstAmount = (appCost * gstRate / 100).toFixed(2);
+            document.getElementById('gstAmount').value = gstAmount;
+
+            const withoutGst = (appCost / (1 + gstRate / 100)).toFixed(2);
+            document.getElementById('withoutGst').value = withoutGst;
+
+            const total = (parseFloat(appCost) - parseFloat(openingOffer)).toFixed(2);
+            document.getElementById('total').value = total;
+
+            let totalDiscount = 0;
+            let grandTotal = 0;
+            let calculatedExtraOffer = 0;
+
+            if (extraOfferType) {
+                document.getElementById('extraOfferFields').classList.remove('hidden');
+
+                if (extraOfferType === 'percentage') {
+                    calculatedExtraOffer = (total * (extraOfferAmount / 100)).toFixed(2);
+                    totalDiscount = (parseFloat(openingOffer) + parseFloat(calculatedExtraOffer)).toFixed(2);
+                    grandTotal = (total - calculatedExtraOffer).toFixed(2);
+                } else {
+                    calculatedExtraOffer = ((extraOfferAmount / total) * 100).toFixed(2);
+                    totalDiscount = (parseFloat(openingOffer) + parseFloat(extraOfferAmount)).toFixed(2);
+                    grandTotal = (total - extraOfferAmount).toFixed(2);
+                }
+
+                document.getElementById('calculatedExtraOffer').value = calculatedExtraOffer;
+                document.getElementById('totalDiscount').value = totalDiscount;
+                document.getElementById('grandTotal').value = grandTotal;
+            } else {
+                document.getElementById('extraOfferFields').classList.add('hidden');
+            }
+        }
+
+        function toggleExtraOfferFields(resetValue) {
+            if (resetValue) {
+                document.getElementById('extraOfferAmount').value = '';
+                document.getElementById('calculatedExtraOffer').value = '';
+                document.getElementById('totalDiscount').value = '';
+                document.getElementById('grandTotal').value = '';
+            }
+            calculateFields();
+        }
+
+        function showPrintOptions() {
+            document.getElementById('printOptions').classList.remove('hidden');
+        }
+
+        function printPDF() {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const location = document.getElementById('location').value;
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.text(`Name: ${name}`, 10, 10);
+            doc.text(`Phone Number: ${phone}`, 10, 20);
+            doc.text(`Location: ${location}`, 10, 30);
+
+            doc.text(`Application Cost: ${document.getElementById('appCost').value}`, 10, 40);
+            doc.text(`GST Rate: ${document.getElementById('gstRate').value}%`, 10, 50);
+            doc.text(`Opening Offer: ${document.getElementById('openingOffer').value}`, 10, 60);
+            doc.text(`GST Amount: ${document.getElementById('gstAmount').value}`, 10, 70);
+            doc.text(`Cost Without GST: ${document.getElementById('withoutGst').value}`, 10, 80);
+            doc.text(`Total Cost: ${document.getElementById('total').value}`, 10, 90);
+
+            const extraOfferType = document.querySelector('input[name="extraOfferType"]:checked')?.value || '';
+            if (extraOfferType) {
+                doc.text(`Extra Offer Type: ${extraOfferType === 'flat' ? 'Flat Amount' : 'Percentage'}`, 10, 100);
+                doc.text(`Extra Offer Amount: ${document.getElementById('extraOfferAmount').value}`, 10, 110);
+                doc.text(`Calculated Extra Offer: ${document.getElementById('calculatedExtraOffer').value}`, 10, 120);
+                doc.text(`Total Discount: ${document.getElementById('totalDiscount').value}`, 10, 130);
+                doc.text(`Final Grand Total: ${document.getElementById('grandTotal').value}`, 10, 140);
+            }
+
+            const fileName = `${name}_${phone}_Cost_Report.pdf`;
+            doc.save(fileName);
+        }
+
+        function printExcel() {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+
+            const data = [
+                ['Name', name],
+                ['Phone Number', phone],
+                ['Application Cost', document.getElementById('appCost').value],
+                ['GST Rate', `${document.getElementById('gstRate').value}%`],
+                ['Opening Offer', document.getElementById('openingOffer').value],
+                ['GST Amount', document.getElementById('gstAmount').value],
+                ['Cost Without GST', document.getElementById('withoutGst').value],
+                ['Total Cost', document.getElementById('total').value]
+            ];
+
+            const extraOfferType = document.querySelector('input[name="extraOfferType"]:checked')?.value || '';
+            if (extraOfferType) {
+                data.push(
+                    ['Extra Offer Type', extraOfferType === 'flat' ? 'Flat Amount' : 'Percentage'],
+                    ['Extra Offer Amount', document.getElementById('extraOfferAmount').value],
+                    ['Calculated Extra Offer', document.getElementById('calculatedExtraOffer').value],
+                    ['Total Discount', document.getElementById('totalDiscount').value],
+                    ['Final Grand Total', document.getElementById('grandTotal').value]
+                );
+            }
+
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Cost Report");
+
+            const fileName = `${name}_${phone}_Cost_Report.xlsx`;
+            XLSX.writeFile(wb, fileName);
+        }
+    </script>
+</body>
+</html>
